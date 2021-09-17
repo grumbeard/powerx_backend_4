@@ -19,10 +19,25 @@ module.exports = (amqpService) => {
    *              type: string
    */
   router.get('/', async (req, res, next) => {
-    const datetime = new Date().toLocaleString();
-    await amqpService.publishHeartbeat({ datetime });
-    res.status(200).send(datetime.toLocaleString());
+    let counter = 0;
+
+    const heartbeatLoop = setInterval(async () => {
+      counter++;
+      await publishHeartbeat();
+
+      if (counter >= 5) clearInterval(heartbeatLoop);
+    }, 1000 * 60);
+
+    res.status(200).send('Heartbeat will be published 5 times');
   });
+
+  async function publishHeartbeat() {
+    const datetime = new Date();
+    await amqpService.publishHeartbeat({
+      datetime: datetime.toLocaleString(),
+      minutes: datetime.getMinutes(),
+    });
+  }
 
   return router;
 };
