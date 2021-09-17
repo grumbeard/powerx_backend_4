@@ -1,8 +1,10 @@
 require('dotenv').config();
 const App = require('./app');
 const Router = require('./routes');
+const AmqpService = require('./services/amqp');
 
-const router = Router();
+const amqpService = AmqpService();
+const router = Router(amqpService);
 const app = App(router);
 
 const PORT = process.env.PORT || 3000;
